@@ -1,6 +1,7 @@
 import express from 'express'
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import UserRouter from './routes/user.routes.js';
 
 const app = express();
 
@@ -17,7 +18,4 @@ app.listen(3000 , ()=>{
     console.log("app is listen on 3000")
 })
 
-
-
-
-// mongodb+srv://myblog-mern:<password>@myblog-mern.ueldain.mongodb.net/
+app.use('/',  UserRouter)
