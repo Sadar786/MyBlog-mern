@@ -22,3 +22,14 @@ app.listen(3000 , ()=>{
 
 app.use('/',  UserRouter)
 app.use('/', AuthRouter)
+
+
+app.use((error, req, res, next) =>{
+    const statusCode = error.statusCode || 500;
+    const massage = error.massage || "server internal error";
+    res.status(statusCode).json({
+        success: false,
+        statusCode,
+        massage
+    })
+})
