@@ -12,7 +12,7 @@ const userSchema = mongoose.Schema({
         unique: true,
     },
     password: {
-        tupe: String,
+        type: String,
         require: true,
     }}, 
     {timestamps: true}
