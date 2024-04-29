@@ -3,11 +3,13 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import UserRouter from './routes/user.routes.js';
 import AuthRouter from './routes/auth.routes.js';
+import cors from 'cors';
 
 const app = express();
 app.use(express.json())
 
 dotenv.config();
+app.use(cors());
 
 
 try{
@@ -26,10 +28,10 @@ app.use('/', AuthRouter)
 
 app.use((error, req, res, next) =>{
     const statusCode = error.statusCode || 500;
-    const massage = error.massage || "server internal error";
+    const message = error.message || "server internal error";
     res.status(statusCode).json({
         success: false,
         statusCode,
-        massage
+        message
     })
 })
