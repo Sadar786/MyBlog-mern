@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import UserRouter from './routes/user.routes.js';
 import AuthRouter from './routes/auth.routes.js';
+import SigninRouter from './routes/auth.routes.js'
 import cors from 'cors';
 
 const app = express();
@@ -23,6 +24,7 @@ app.listen(3000 , ()=>{
 })
 
 app.use('/',  UserRouter)
+app.use('/', SigninRouter)
 app.use('/', AuthRouter)
 
 
