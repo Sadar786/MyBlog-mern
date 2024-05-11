@@ -1,5 +1,5 @@
-import {Label, TextInput, Button, Alert, Spinner, Banner, Navbar} from "flowbite-react";
-
+import {Label, TextInput,Accordion, Button, Alert, Spinner, Banner, Navbar} from "flowbite-react";
+import { useSelector } from 'react-redux';
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
@@ -9,6 +9,12 @@ export default function SignUp() {
   const [errMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const theme = useSelector(state => state.theme.theme); // Assuming your theme state is stored under 'theme' slice
+
+  const containerStyle = {
+ 
+    backgroundColor: theme === 'dark' ? '#202938' : '#fff', // Set the background color based on the theme
+   };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -48,9 +54,9 @@ export default function SignUp() {
   };
 
   return (
-    <Navbar>
-      <div className="min-h-screen mt-20">
-        <div className="flex p-3  max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5">
+    <div className="pt-20" style={containerStyle}>
+     <div className="min-h-screen " >
+         <div className="flex p-3  max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5">
           {/* left */}
           <div className="flex-1">
             <Link
@@ -127,7 +133,7 @@ export default function SignUp() {
             )}
           </div>
         </div>
-      </div>
-    </Navbar>
-  );
+       </div>
+       </div>
+   );
 }
