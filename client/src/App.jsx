@@ -8,6 +8,7 @@ import Projects from './pages/Projects'
 import Header from './components/Header'
 import React from 'react'
 import Footer from './pages/Footer'
+import PrivateRoute from './components/PrivateRoute'
 
 
 export default function App() {
@@ -19,7 +20,9 @@ export default function App() {
       <Route path='/about' element={<About/>}/>
       <Route path='/signin' element={<SignIn/>}/>
       <Route path='/signup' element={<SignUp/>}/>
+      <Route element={<PrivateRoute/>}>
       <Route path='/dashboard' element={<Dashboart/>}/>
+      </Route>
       <Route path='/projects' element={<Projects/>}/>
     </Routes>
      <Footer/>

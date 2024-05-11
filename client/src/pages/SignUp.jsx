@@ -13,7 +13,7 @@ export default function SignUp() {
 
   const containerStyle = {
  
-    backgroundColor: theme === 'dark' ? '#202938' : '#fff', // Set the background color based on the theme
+    backgroundColor: theme === 'dark' ? 'rgb(16, 23, 42)' : '#fff', // Set the background color based on the theme
    };
 
   const handleChange = (e) => {
