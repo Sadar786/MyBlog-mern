@@ -9,13 +9,7 @@ export default function SignUp() {
   const [errMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const theme = useSelector(state => state.theme.theme); // Assuming your theme state is stored under 'theme' slice
-
-  const containerStyle = {
  
-    backgroundColor: theme === 'dark' ? 'rgb(16, 23, 42)' : '#fff', // Set the background color based on the theme
-   };
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
@@ -54,7 +48,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="pt-20" style={containerStyle}>
+    <div className="pt-20"  >
      <div className="min-h-screen " >
          <div className="flex p-3  max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5">
           {/* left */}

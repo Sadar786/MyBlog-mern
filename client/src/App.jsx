@@ -11,6 +11,7 @@ import Footer from './pages/Footer'
 import PrivateRoute from './components/PrivateRoute'
 
 
+
 export default function App() {
   return (
     <BrowserRouter>
