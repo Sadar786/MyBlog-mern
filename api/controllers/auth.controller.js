@@ -41,9 +41,7 @@ export const signin = async (req, res, next) =>{
         }
         const {password: pass, ...rest} = vilidUser._doc;
         const token = jwt.sign({id: vilidUser._id, }, process.env.JWT_KEY);
-        res.status(200).cookie('access_token', token, {
-            httpOnly:true
-        }).json(rest)
+        res.status(200).cookie('access_token', token, {httpOnly:true}).json(rest)
     }catch(err){
         next(err)
     }
