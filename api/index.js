@@ -5,12 +5,14 @@ import UserRouter from './routes/user.routes.js';
 import AuthRouter from './routes/auth.routes.js';
 import SigninRouter from './routes/auth.routes.js'
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 app.use(express.json())
-
+app.use(cookieParser())
 dotenv.config();
 app.use(cors());
+
 
 
 try{
@@ -23,9 +25,9 @@ app.listen(3000 , ()=>{
     console.log("app is listen on 3000")
 })
 
-app.use('/',  UserRouter)
-app.use('/', SigninRouter)
-app.use('/', AuthRouter)
+app.use('/', UserRouter);
+app.use('/', SigninRouter);
+app.use('/', AuthRouter);
 
 
 app.use((error, req, res, next) =>{

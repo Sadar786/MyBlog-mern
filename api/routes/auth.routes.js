@@ -6,4 +6,5 @@ AuthRouter.post("/api/signup", signUp)
 AuthRouter.post("/api/signin", signin)
 AuthRouter.post("/api/googleAuth", googleAuth)
 
+
 export default AuthRouter;
