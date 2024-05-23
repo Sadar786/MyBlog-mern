@@ -91,7 +91,7 @@ export default function SignUp() {
               <div>
                 <Label value="Your Password" />
                 <TextInput
-                  type="text"
+                  type="password"
                   placeholder="Password"
                   id="password"
                   onChange={handleChange}

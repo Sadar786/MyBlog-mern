@@ -17,7 +17,6 @@ const userSchema = mongoose.Schema({
     },
     profilePicture : {
         type: String,
-        default: "https://i.pinimg.com/736x/54/72/d1/5472d1b09d3d724228109d381d617326.jpg"
     },
 },
     { timestamps: true }
