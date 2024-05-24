@@ -9,9 +9,9 @@ import cookieParser from 'cookie-parser';
 
 const app = express();
 app.use(express.json())
-app.use(cookieParser())
-dotenv.config();
 app.use(cors());
+dotenv.config();
+app.use(cookieParser())
 
 
 

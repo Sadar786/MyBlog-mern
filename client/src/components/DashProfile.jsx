@@ -5,6 +5,9 @@ import {getDownloadURL, getStorage, ref, uploadBytesResumable} from 'firebase/st
 import {app} from '../firebase.js'
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import { updateStart, updateSuccess, updateFaluire } from '../redex/user/userSlice.js';
+import { useDispatch } from 'react-redux'
+import { signInSuccess } from '../redex/user/userSlice.js'
 
 export default function DashProfile() {
   const {currentUser } = useSelector((state) => state.user)
@@ -14,10 +17,12 @@ export default function DashProfile() {
   const filePickerRef = useRef();
   const [imageFileUploadingProgress, setimageFileUploadingProgress] = useState(null)
   const [imageFileUploadingError, setimageFileUploadingError] = useState(null)
- 
-  const handleChange = (e) => {
-    setFormData({...formData, [e.target.id]: e.target.value.trim()})
-  }
+  const dispatch = useDispatch();
+  const [imageFileLoading , setImageFileLoading ] = useState(false)
+  const [updatedUserSuccess , setUpdatedUserSuccess] = useState(false)
+  const [updateUserError, setUpdatedUserError] = useState(null)
+
+
 
   const handleImageChange =  (e) =>{
     let file = e.target.files[0]
@@ -27,10 +32,7 @@ export default function DashProfile() {
     }
   }
  
-  const handleSubmit = () => {
-    const res = fetch()
-  }
-
+  
   useEffect(()=>{
     if(imageFile){
       upLoadImage()
@@ -38,6 +40,7 @@ export default function DashProfile() {
   }, [imageFile])
 
   const upLoadImage = () => {
+    setImageFileLoading(true)
     setimageFileUploadingError(null)
     const storage = getStorage(app);
     const fileName = new Date().getTime() + imageFile.name;
@@ -55,20 +58,68 @@ export default function DashProfile() {
         setimageFileUploadingProgress(null);
         setImageFile(null);
         setImageFileUrl(null);
+        setImageFileLoading(false)
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setImageFileUrl(downloadURL);
+          setFormData({...formData, profilePicture: downloadURL})
+          setImageFileLoading(false)
         });
       }
     );
   };
   
+  const handleChange = (e) => {
+    setFormData({...formData, [e.target.id]: e.target.value.trim()})
+  }
+  
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setUpdatedUserError(null);
+    setUpdatedUserSuccess(null)
+    if(Object.keys(formData).length === 0){
+      setUpdatedUserError("No Change made !!")
+      return;
+    }
+    if(imageFileLoading){
+      setUpdatedUserError("please wait for image to upload!")
+      return;
+    }
+    
+    try {
+      dispatch(updateStart());
+      const res = await fetch(`/api/update/${currentUser._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      const data = await res.json();
+      if(!res.ok){
+        dispatch(updateFaluire(data.message))
+        setUpdatedUserError( data.message)
+
+      }
+      else{
+        dispatch(updateSuccess(data))
+        setUpdatedUserSuccess("User Profile updated successfully! :" )
+        setUpdatedUserError(null)
+      }
+    } catch (error) {
+      dispatch(updateFaluire(error.message))
+      setUpdatedUserError("Occur some Error on updating!" + error.message)
+
+    }
+
+  }
   return (
     <div className='max-w-lg mx-auto p-3 w-full'>
       <h1 className='my-7 text-center font-semibold text-3xl'>Profile</h1>
-        <form className='flex flex-col gap-4' > 
+        <form className='flex flex-col gap-4' onSubmit={handleSubmit} > 
             <input type="file" accept='image/*' onChange={handleImageChange} ref={filePickerRef} hidden/>
           <div className="relative flex self-center w-32 h-32 cursor-pointer shadow-md rounded-full overflow-hidden" onClick={()=>filePickerRef.current.click()}>
             {imageFileUploadingProgress && (
@@ -108,12 +159,17 @@ export default function DashProfile() {
 
           <Button type='submit' outline gradientDuoTone={'purpleToBlue'}> update</Button>
           
+        </form>
           <div className="text-red-500 justify-between flex mt-5">
             <span className="cursor-pointer">Delete</span>
             <span className="cursor-pointer">Sign Out</span>
           </div>
-        </form>
-
+            {updatedUserSuccess && (<Alert
+            color={"success"} className='mt-5'>{updatedUserSuccess}</Alert>)
+            }
+            {updateUserError && (<Alert
+            color={"failure"} className='mt-5'>{updateUserError}</Alert>)
+            }
      </div>
   )
 }

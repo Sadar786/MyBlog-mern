@@ -1,4 +1,4 @@
-import { Label, TextInput, Button, Alert, Spinner, Card, Navbar } from "flowbite-react";
+import { Label, TextInput, Button, Alert, Spinner} from "flowbite-react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -14,7 +14,7 @@ export default function SignIn() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error: errorMessage } = useSelector((state) => state.user);
-  
+   
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -41,6 +41,7 @@ export default function SignIn() {
       console.log("Response:", data);
       if (resp.ok) {
         dispatch(signInSuccess(data));
+        console.log(data)
         navigate("/");
       }
     } catch (err) {
@@ -48,7 +49,9 @@ export default function SignIn() {
       console.error("Fetch error:", err);
     }
   };
-
+ const errorDisapear = () => {
+  dispatch(signInStart())
+ }
   return (
     <div className="pt-20" >
     <div className="min-h-screen  dark:bg-[rgb(16, 23, 42)]">
@@ -105,7 +108,7 @@ export default function SignIn() {
                 "Sign In"
               )}
             </Button>
-            <OAuth />
+            <OAuth onClick={errorDisapear}/>
           </form>
           <div className="flex gap-2 text-sm mt-5">
             <span>don't have an account?</span>
