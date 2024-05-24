@@ -57,6 +57,19 @@ export const updateUser = async (req, res, next) => {
     }
 };
 
+export const deleteUser = async (req, res, next) => {
+      if(req.user.id !== req.params.userId){
+        return next(errorHandler(403, "you are not allowed to delete acount, because you are not authintic user."))
+      }
+      try {
+          await User.findByIdAndDelete(req.params.userId)
+          res.status(200).json({message: "User deleted successfully."})
+          next();
+        
+      } catch (error) {
+        next(error)
+      }
+}
 
 
 //Originl code
