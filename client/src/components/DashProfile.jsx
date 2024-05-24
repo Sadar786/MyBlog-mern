@@ -17,6 +17,7 @@ import {
   deleteUserStart,
   deleteUserSuccess,
   deleteUserFailure,
+  signOutSuccess,
 } from "../redex/user/userSlice.js";
 import { useDispatch } from "react-redux";
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
@@ -27,8 +28,7 @@ export default function DashProfile() {
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const filePickerRef = useRef();
-  const [imageFileUploadingProgress, setimageFileUploadingProgress] =
-    useState(null);
+  const [imageFileUploadingProgress, setimageFileUploadingProgress] = useState(null);
   const [imageFileUploadingError, setimageFileUploadingError] = useState(null);
   const dispatch = useDispatch();
   const [imageFileLoading, setImageFileLoading] = useState(false);
@@ -150,6 +150,20 @@ export default function DashProfile() {
     }
   }
   
+  const handleSignOut =async () => {
+    try {
+      const res = await fetch('/api/signout',{
+        method: "POST"
+      })
+      const data = await res.json();
+      if(!data.ok){
+        dispatch(signOutSuccess())
+      }
+    } catch (error) {
+      
+    }
+  }
+
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 text-center font-semibold text-3xl">Profile</h1>
@@ -236,7 +250,7 @@ export default function DashProfile() {
         <span className="cursor-pointer" onClick={() => setShowModel(true)}>
           Delete account
         </span>
-        <span className="cursor-pointer">Sign Out</span>
+        <span className="cursor-pointer" onClick={()=>{handleSignOut()}}>Sign Out</span>
       </div>
       {updatedUserSuccess && (
         <Alert color={"success"} className="mt-5">
