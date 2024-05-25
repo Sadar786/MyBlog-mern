@@ -1,5 +1,6 @@
 import { Alert, Button, TextInput,Modal } from "flowbite-react";
 import React, { useEffect, useRef, useState } from "react";
+import {Link} from 'react-router-dom'
 import { useSelector } from "react-redux";
 import {
   getDownloadURL,
@@ -23,7 +24,7 @@ import { useDispatch } from "react-redux";
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 
 export default function DashProfile() {
-  const { currentUser, error } = useSelector((state) => state.user);
+  const { currentUser, error, loading } = useSelector((state) => state.user);
   const [formData, setFormData] = useState({});
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
@@ -103,6 +104,12 @@ export default function DashProfile() {
       setUpdatedUserError("No Change made !!");
       return;
     }
+    if(formData.username< 8 || formData.username > 21){
+      setUpdatedUserError("user name should be of length between 7 and 20")
+    }
+    if(formData.password< 7){
+      setUpdatedUserError("user name should be of length between 7 and 20")
+    }
     if (imageFileLoading) {
       setUpdatedUserError("please wait for image to upload!");
       return;
@@ -121,6 +128,7 @@ export default function DashProfile() {
       const data = await res.json();
       if (!res.ok) {
         setUpdatedUserError(data.message);
+        dispatch(updateFaluire(data.message))
       } else {
         dispatch(updateSuccess(data));
         setUpdatedUserSuccess("User Profile updated successfully! :");
@@ -247,10 +255,23 @@ export default function DashProfile() {
           id="password"
         />
 
-        <Button type="submit" outline gradientDuoTone={"purpleToBlue"}>
-          {" "}
-          update
+        <Button type="submit" outline gradientDuoTone="purpleToBlue" disabled={loading || imageFileLoading}>
+          {loading ? "loading..." : 'update'}
+          
         </Button>
+        {
+          currentUser.isAdmin && (
+            <Link to='/create-post'>
+            <Button
+            type="button"
+            gradientDuoTone="purpleToPink"
+            className="w-full"
+            >
+              Create a Post
+            </Button>
+            </Link>
+          )
+        }
       </form>
       <div className="text-red-500 justify-between flex mt-5">
         <span className="cursor-pointer" onClick={() => setShowModel(true)}>
