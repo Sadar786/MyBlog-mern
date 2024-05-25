@@ -57,13 +57,13 @@ export default function DashProfile() {
     const fileName = new Date().getTime() + imageFile.name;
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, imageFile);
-
+  
     uploadTask.on(
       "state_changed",
       (snapshot) => {
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setimageFileUploadingProgress(progress.toFixed(2)); // Fixed to two decimal places
+        setimageFileUploadingProgress(progress.toFixed(2));
       },
       (error) => {
         setimageFileUploadingError(
@@ -75,14 +75,21 @@ export default function DashProfile() {
         setImageFileLoading(false);
       },
       () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setImageFileUrl(downloadURL);
-          setFormData({ ...formData, profilePicture: downloadURL });
-          setImageFileLoading(false);
-        });
+        getDownloadURL(uploadTask.snapshot.ref)
+          .then((downloadURL) => {
+            setImageFileUrl(downloadURL);
+            setFormData({ ...formData, profilePicture: downloadURL }); // Update formData with the new profile picture URL
+            setImageFileLoading(false);
+          })
+          .catch((error) => {
+            console.error("Error getting download URL:", error);
+            setimageFileUploadingError("Error getting download URL.");
+            setImageFileLoading(false);
+          });
       }
     );
   };
+  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -113,7 +120,6 @@ export default function DashProfile() {
 
       const data = await res.json();
       if (!res.ok) {
-        dispatch(updateFaluire(data.message));
         setUpdatedUserError(data.message);
       } else {
         dispatch(updateSuccess(data));

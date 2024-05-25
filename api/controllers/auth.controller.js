@@ -40,7 +40,7 @@ export const signin = async (req, res, next) =>{
            return next(errorHandler(404, "Password not found."))
         }
         const {password: pass, ...rest} = vilidUser._doc;
-        const token = jwt.sign({id: vilidUser._id, }, process.env.JWT_KEY ,  { expiresIn: '4d' });
+        const token = jwt.sign({id: vilidUser._id, isAdmin: vilidUser.isAdmin }, process.env.JWT_KEY ,  { expiresIn: '4d' });
         res.status(200).cookie('access_token', token, {httpOnly:true}).json(rest)
     }catch(err){
         next(err)
@@ -52,7 +52,7 @@ export const googleAuth = async (req, res, next) => {
         try {
             const user = await User.findOne({email});
             if(user){
-                const token = jwt.sign({id: user._id } , process.env.JWT_KEY ,  { expiresIn: '4d' })
+                const token = jwt.sign({id: user._id , isAdmin: user.isAdmin } , process.env.JWT_KEY ,  { expiresIn: '4d' })
                 const {password: pass, ...rest} = user._doc;
                 res.status(200).cookie('access_token',token , {
                     httpOnly:true,
@@ -69,7 +69,7 @@ export const googleAuth = async (req, res, next) => {
 
                 });
                 await newUser.save();
-                const token = jwt.sign({id: newUser._id }, process.env.JWT_KEY ,  { expiresIn: '4d' });
+                const token = jwt.sign({id: newUser._id, isAdmin: newUser.isAdmin }, process.env.JWT_KEY ,  { expiresIn: '4d' });
                 const {password, ...rest } = newUser._doc;
                 res.status(200).cookie('access_token', token , {
                     httpOnly: true,
