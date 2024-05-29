@@ -26,7 +26,7 @@ app.listen(3000 , ()=>{
     console.log("app is listen on 3000")
 })
 
-app.use('/api/auth', UserRouter);
+app.use('/', UserRouter);
 app.use('/api/user', SigninRouter);
 app.use('/', AuthRouter);
 app.use('/api/post', postRouter)
