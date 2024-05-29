@@ -2,6 +2,11 @@
 import mongoose from "mongoose";
 
 const postSchema = mongoose.Schema({
+    title: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     userId: {
         type: String,
         required: true,
@@ -9,11 +14,6 @@ const postSchema = mongoose.Schema({
     content: {
         type: String,
         required: true
-    },
-    title: {
-        type: String,
-        required: true,
-        unique: true,
     },
     image:{
         type: String,
