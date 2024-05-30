@@ -7,6 +7,7 @@ export default function DashPosts() {
   const { currentUser } = useSelector((state) => state.user);
   const [posts, setPosts] = useState([]); // State to store the fetched posts
   const [error, setError] = useState(null); // State to store any error messages
+  const [shawMore, setShowMore] = useState(true)
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -17,8 +18,13 @@ export default function DashPosts() {
         if (!response.ok) {
           throw new Error("Failed to fetch posts");
         }
+        if(response.ok){
         const data = await response.json();
         setPosts(data.posts || []);
+        if(data.length < 9){
+          setShowMore(false)
+        }
+      }
       } catch (error) {
         setError(error.message);
       }
@@ -30,6 +36,32 @@ export default function DashPosts() {
   }, [currentUser._id, currentUser.isAdmin]);
 
   console.log(posts);
+
+  const handleShowMore = async () => {
+    const startIndex = posts.length;
+
+    try {
+        const res = await fetch(`/api/post/getPosts?userId=${currentUser._id}&startIndex=${startIndex}`);
+        const data = await res.json();
+
+        if (res.ok) {
+            if (Array.isArray(data.posts)) {
+                setPosts((prev) => [...prev, ...data.posts]);
+                if (data.posts.length < 9) {
+                    setShowMore(false);
+                }
+            } else {
+                throw new Error('Invalid response format');
+            }
+        } else {
+            throw new Error('Failed to fetch posts');
+        }
+    } catch (error) {
+        setError(error.message);
+        console.log(error.message);
+    }
+};
+
 
   return (
     <div className="table-auto overflow-x-scroll md:ax-auto p-3 scrollbar
@@ -97,6 +129,11 @@ export default function DashPosts() {
               );
             })}
           </Table>
+            {
+              shawMore && <>
+               <button className="text-teal-500 self-center text-sm py-7 w-full" onClick={handleShowMore}>Show more</button>
+              </>
+            }
         </>
       ) : (
         <p>You have no posts yet.</p>
