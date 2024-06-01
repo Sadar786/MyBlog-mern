@@ -106,6 +106,7 @@ export const deletePost = async (req, res, next) => {
 
 
 export const updatePost = async (req, res, next) =>{
+    console.log(req.params.userId)
    
     if(!req.user.isAdmin || req.user.id !== req.params.userId){
       next(errorHandler(403, "you are not Authurized to update post."))
