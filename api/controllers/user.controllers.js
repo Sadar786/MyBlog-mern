@@ -79,3 +79,58 @@ export const signOut = async (req, res, next) =>{
         next(error)
     }
 }
+
+export const getUsers = async (req, res, next) => {
+    try {
+        // Check if the user is an admin
+        if (!req.user.isAdmin) {
+            return next(errorHandler(403, "Hey bro, you are not allowed to see users."));
+        }
+
+        const startIndex = parseInt(req.query.startIndex) || 0;
+        const limit = parseInt(req.query.limit) || 9;
+        const sortDirection = req.query.sort === 'asc' ? 1 : -1;
+      
+        // Fetch users from the database
+        const users = await User.find()
+            .sort({ createdAt: sortDirection })
+            .skip(startIndex)
+            .limit(limit);
+
+        // Remove password from the user objects
+        const usersWithoutPasswords = users.map((user) => {
+            const { password, ...rest } = user._doc;
+            return rest;
+        });
+
+        // Get total number of users
+        const totalUsers = await User.countDocuments();
+
+        // Get users created in the last month
+        const now = new Date();
+        const oneMonthAgo = new Date(
+            now.getFullYear(),
+            now.getMonth() - 1,
+            now.getDate()
+        );
+
+        const lastMonthUsers = await User.countDocuments({
+            createdAt: { $gte: oneMonthAgo }
+        });
+
+        // Send response
+        res.status(200).json({
+            success: true,
+            users: usersWithoutPasswords,
+            totalUsers,
+            lastMonthUsers
+        });
+
+    } catch (error) {
+        if (error.name === 'MongoNetworkError' || error.message.includes('timed out')) {
+            return next(errorHandler(500, "Database query timed out"));
+        }
+        // Handle any other errors
+        next(errorHandler(500, "An error occurred while fetching users"));
+    }
+};
