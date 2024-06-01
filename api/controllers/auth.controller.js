@@ -41,7 +41,10 @@ export const signin = async (req, res, next) =>{
         }
         const {password: pass, ...rest} = vilidUser._doc;
         const token = jwt.sign({id: vilidUser._id, isAdmin: vilidUser.isAdmin }, process.env.JWT_KEY ,  { expiresIn: '4d' });
-        res.status(200).cookie('access_token', token, {httpOnly:true}).json(rest)
+        res.status(200).cookie('access_token', token, {
+            httpOnly:true,
+            expires: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000) // 4 days
+        }).json(rest)
     }catch(err){
         next(err)
     }
@@ -56,6 +59,7 @@ export const googleAuth = async (req, res, next) => {
                 const {password: pass, ...rest} = user._doc;
                 res.status(200).cookie('access_token',token , {
                     httpOnly:true,
+                    expires: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000) // 4 days
                 } ).json(rest);
             }
             else{
@@ -73,6 +77,7 @@ export const googleAuth = async (req, res, next) => {
                 const {password, ...rest } = newUser._doc;
                 res.status(200).cookie('access_token', token , {
                     httpOnly: true,
+                    expires: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000) // 4 days
                 }).json(rest);
             }
 

@@ -1,6 +1,6 @@
-import { Alert, Button, TextInput,Modal } from "flowbite-react";
+import { Alert, Button, TextInput, Modal } from "flowbite-react";
 import React, { useEffect, useRef, useState } from "react";
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom';
 import { useSelector } from "react-redux";
 import {
   getDownloadURL,
@@ -29,13 +29,14 @@ export default function DashProfile() {
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const filePickerRef = useRef();
-  const [imageFileUploadingProgress, setimageFileUploadingProgress] = useState(null);
-  const [imageFileUploadingError, setimageFileUploadingError] = useState(null);
+  const [imageFileUploadingProgress, setImageFileUploadingProgress] = useState(null);
+  const [imageFileUploadingError, setImageFileUploadingError] = useState(null);
   const dispatch = useDispatch();
   const [imageFileLoading, setImageFileLoading] = useState(false);
   const [updatedUserSuccess, setUpdatedUserSuccess] = useState(false);
   const [updateUserError, setUpdatedUserError] = useState(null);
-  const [showModel, setShowModel] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+ 
 
   const handleImageChange = (e) => {
     let file = e.target.files[0];
@@ -47,30 +48,30 @@ export default function DashProfile() {
 
   useEffect(() => {
     if (imageFile) {
-      upLoadImage();
+      uploadImage();
     }
   }, [imageFile]);
 
-  const upLoadImage = () => {
+  const uploadImage = () => {
     setImageFileLoading(true);
-    setimageFileUploadingError(null);
+    setImageFileUploadingError(null);
     const storage = getStorage(app);
     const fileName = new Date().getTime() + imageFile.name;
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, imageFile);
-  
+
     uploadTask.on(
       "state_changed",
       (snapshot) => {
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setimageFileUploadingProgress(progress.toFixed(2));
+        setImageFileUploadingProgress(progress.toFixed(2));
       },
       (error) => {
-        setimageFileUploadingError(
-          "Could not upload Image (file must be less than 2MB) " + error.message
+        setImageFileUploadingError(
+          "Could not upload image (file must be less than 2MB): " + error.message
         );
-        setimageFileUploadingProgress(null);
+        setImageFileUploadingProgress(null);
         setImageFile(null);
         setImageFileUrl(null);
         setImageFileLoading(false);
@@ -79,18 +80,17 @@ export default function DashProfile() {
         getDownloadURL(uploadTask.snapshot.ref)
           .then((downloadURL) => {
             setImageFileUrl(downloadURL);
-            setFormData({ ...formData, profilePicture: downloadURL }); // Update formData with the new profile picture URL
+            setFormData({ ...formData, profilePicture: downloadURL });
             setImageFileLoading(false);
           })
           .catch((error) => {
             console.error("Error getting download URL:", error);
-            setimageFileUploadingError("Error getting download URL.");
+            setImageFileUploadingError("Error getting download URL.");
             setImageFileLoading(false);
           });
       }
     );
   };
-  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -100,18 +100,28 @@ export default function DashProfile() {
     e.preventDefault();
     setUpdatedUserError(null);
     setUpdatedUserSuccess(null);
+
     if (Object.keys(formData).length === 0) {
-      setUpdatedUserError("No Change made !!");
+      setUpdatedUserError("No changes made!!");
       return;
     }
-    if(formData.username< 8 || formData.username > 21){
-      setUpdatedUserError("user name should be of length between 7 and 20")
+
+    if (formData.username) {
+      if (typeof formData.username !== 'string' || formData.username.length < 7 || formData.username.length > 20) {
+        setUpdatedUserError("Username should be between 7 and 20 characters long");
+        return;
+      }
     }
-    if(formData.password< 7){
-      setUpdatedUserError("user name should be of length between 7 and 20")
+
+    if (formData.password) {
+      if (typeof formData.password !== 'string' || formData.password.length < 6) {
+        setUpdatedUserError("Password should be at least 6 characters long");
+        return;
+      }
     }
+
     if (imageFileLoading) {
-      setUpdatedUserError("please wait for image to upload!");
+      setUpdatedUserError("Please wait for the image to upload!");
       return;
     }
 
@@ -127,56 +137,51 @@ export default function DashProfile() {
 
       const data = await res.json();
       if (!res.ok) {
-        setUpdatedUserError(data.message);
-        dispatch(updateFaluire(data.message))
+        setUpdatedUserError("Error: " + data.message);
+        dispatch(updateFaluire(data.message));
       } else {
         dispatch(updateSuccess(data));
-        setUpdatedUserSuccess("User Profile updated successfully! :");
+        setUpdatedUserSuccess("User profile updated successfully!");
         setUpdatedUserError(null);
       }
     } catch (error) {
       dispatch(updateFaluire(error.message));
-      setUpdatedUserError("Occur some Error on updating!" + error.message);
+      setUpdatedUserError("An error occurred: " + error.message);
+    }
+};
+
+
+  const handleDeleteUser = async () => {
+    setShowModal(false);
+    dispatch(deleteUserStart());
+    try {
+      const res = await fetch(`/api/delete/${currentUser._id}`, {
+        method: "DELETE"
+      });
+      const deleted = await res.json();
+      if (!res.ok) {
+        dispatch(deleteUserFailure("Error occurred in deleting: " + deleted.message));
+      } else {
+        dispatch(deleteUserSuccess("User deleted successfully."));
+      }
+    } catch (error) {
+      dispatch(deleteUserFailure("Error: " + error.message));
     }
   };
 
-  const handleDeleteUser = async () =>{
-    setShowModel(false);
-    dispatch(deleteUserStart());
-    console.log("delete called")
+  const handleSignOut = async () => {
     try {
-      const res = await fetch(`/api/delete/${currentUser._id}`, 
-       { 
-        method: "DELETE"
-        }
-      )
-      const deleted = await res.json();
-      if(!res.ok){
-        console.log("Error in deleting :" + deleted.message)
-        dispatch(deleteUserFailure("Error occur in deleting : " + deleted.message))
-      }
-      else{
-        console.log("deleted successfully : " + deleted)
-        dispatch(deleteUserSuccess("User deleted successfully."))
-      }
-    } catch (error) {
-      console.log("error : " + error.message)
-    }
-  }
-  
-  const handleSignOut =async () => {
-    try {
-      const res = await fetch('/api/signout',{
+      const res = await fetch('/api/signout', {
         method: "POST"
-      })
+      });
       const data = await res.json();
-      if(!data.ok){
-        dispatch(signOutSuccess())
+      if (!data.ok) {
+        dispatch(signOutSuccess());
       }
     } catch (error) {
-      
+      console.error("Error signing out:", error);
     }
-  }
+  };
 
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
@@ -212,11 +217,11 @@ export default function DashProfile() {
                   })`,
                 },
                 trail: {
-                  stroke: "#d6d6d6", // Color of the background circle
+                  stroke: "#d6d6d6",
                 },
                 text: {
-                  fill: "#000", // Color of the text showing the progress percentage
-                  fontSize: "16px", // Size of the text showing the progress percentage
+                  fill: "#000",
+                  fontSize: "16px",
                 },
               }}
             />
@@ -249,62 +254,58 @@ export default function DashProfile() {
           defaultValue={currentUser.email}
         />
         <TextInput
-          type="text"
+          type="password"
           onChange={handleChange}
           placeholder="*******"
           id="password"
         />
 
         <Button type="submit" outline gradientDuoTone="purpleToBlue" disabled={loading || imageFileLoading}>
-          {loading ? "loading..." : 'update'}
-          
+          {loading ? "Loading..." : 'Update'}
         </Button>
-        {
-          currentUser.isAdmin && (
-            <Link to='/create-post'>
+        {currentUser.isAdmin && (
+          <Link to='/create-post'>
             <Button
-            type="button"
-            gradientDuoTone="purpleToPink"
-            className="w-full"
+              type="button"
+              gradientDuoTone="purpleToPink"
+              className="w-full"
             >
               Create a Post
             </Button>
-            </Link>
-          )
-        }
+          </Link>
+        )}
       </form>
       <div className="text-red-500 justify-between flex mt-5">
-        <span className="cursor-pointer" onClick={() => setShowModel(true)}>
+        <span className="cursor-pointer" onClick={() => setShowModal(true)}>
           Delete account
         </span>
-        <span className="cursor-pointer" onClick={()=>{handleSignOut()}}>Sign Out</span>
+        <span className="cursor-pointer" onClick={handleSignOut}>Sign Out</span>
       </div>
       {updatedUserSuccess && (
-        <Alert color={"success"} className="mt-5">
+        <Alert color="success" className="mt-5">
           {updatedUserSuccess}
         </Alert>
       )}
       {updateUserError && (
-        <Alert color={"failure"} className="mt-5">
+        <Alert color="failure" className="mt-5">
           {updateUserError}
         </Alert>
       )}
       {error && (
-        <Alert color={"failure"} className="mt-5">
+        <Alert color="failure" className="mt-5">
           {error}
         </Alert>
       )}
-      <Modal show={showModel} onClose={()=> {setShowModel(false)}} popup size={"md"} >
-        <Modal.Header/>
+      <Modal show={showModal} onClose={() => { setShowModal(false) }} popup size="md">
+        <Modal.Header />
         <Modal.Body>
           <div className="text-center">
             <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-400 mb-4 mx-auto" />
-            <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400 ">Are you sure you want to delete you account?</h3>
+            <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">Are you sure you want to delete your account?</h3>
             <div className="flex justify-center gap-4">
-              <Button color={"failure"} onClick={handleDeleteUser} >Yes I'm sure.</Button>
-              <Button color='gray' onClick={()=>setShowModel(false) }> Cencel</Button>
+              <Button color="failure" onClick={handleDeleteUser}>Yes, I'm sure.</Button>
+              <Button color="gray" onClick={() => setShowModal(false)}>Cancel</Button>
             </div>
-
           </div>
         </Modal.Body>
       </Modal>

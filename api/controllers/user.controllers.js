@@ -19,41 +19,42 @@ export const updateUser = async (req, res, next) => {
             return next(errorHandler(400, "Password must be greater than 6 characters"));
         }
 
-        if (username.length < 7 || username.length > 20) {
+        if (username && (username.length < 7 || username.length > 20)) {
             return next(errorHandler(400, "Username must be between 7 and 20 characters"));
         }
         
-        if (username !== username.toLowerCase()) {
+        if (username && username !== username.toLowerCase()) {
             return next(errorHandler(400, "Username must be in lower case"));
         }
 
-        if (username.includes(' ')) {
+        if (username && username.includes(' ')) {
             return next(errorHandler(400, "Username should not contain spaces"));
         }
 
-        if (!username.match(/^[a-zA-Z0-9]+$/)) {
+        if (username && !username.match(/^[a-zA-Z0-9]+$/)) {
             return next(errorHandler(400, "Username should not contain special characters"));
         }
 
         const hashedPassword = password ? await bcryptjs.hash(password, 10) : undefined;
 
+        const updatedFields = {};
+        if (username) updatedFields.username = username;
+        if (email) updatedFields.email = email;
+        if (hashedPassword) updatedFields.password = hashedPassword;
+        if (profilePicture) updatedFields.profilePicture = profilePicture;
+
         const updatedUser = await User.findByIdAndUpdate(req.params.userId, {
-            $set: {
-                username,
-                email,
-                password: hashedPassword,
-                profilePicture
-            }
+            $set: updatedFields
         }, { new: true });
 
         if (!updatedUser) {
             return next(errorHandler(404, "User not found"));
         }
-
+        
         const { password: userPassword, ...rest } = updatedUser._doc;
         res.status(200).json(rest);
     } catch (error) {
-        next(error);
+        next({ message: "An error occurred: " + error.message });
     }
 };
 

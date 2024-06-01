@@ -101,3 +101,46 @@ export const deletePost = async (req, res, next) => {
         next(errorHandler(500, "An error occurred while deleting the post."));
     }
 };
+
+
+
+
+export const updatePost = async (req, res, next) =>{
+   
+    if(!req.user.isAdmin || req.user.id !== req.params.userId){
+      next(errorHandler(403, "you are not Authurized to update post."))
+      return ;
+    }
+
+    const {title, content, category, image} = req.body;
+
+    const updatedFields = {};
+    if (title) updatedFields.title = title;
+    if (content) updatedFields.content = content;
+    if (category) updatedFields.category = category;
+    if (image) updatedFields.image = image;
+    
+
+    try {
+        
+        const updatedPost = await Post.findByIdAndUpdate(
+            req.params.postId,
+            {
+                $set: updatedFields
+
+            },
+            {new: true}
+        )
+        if(!updatedPost){
+            next(errorHandler(401, "some error occured."))
+        }
+        else{
+            res.status(200).json(updatedPost);
+
+        }
+        
+    } catch (error) {
+        next(errorHandler(500, "An Error occurred while updating post."+ error.message))
+        
+    }
+}
