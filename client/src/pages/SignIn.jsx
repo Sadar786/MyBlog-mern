@@ -27,7 +27,7 @@ export default function SignIn() {
     }
     try {
       dispatch(signInStart());
-      const resp = await fetch("/api/signin", { method: "POST", headers: { "Content-Type": "application/json" },body: JSON.stringify(formData),
+      const resp = await fetch("/api/auth/signin", { method: "POST", headers: { "Content-Type": "application/json" },body: JSON.stringify(formData),
       });
       if (!resp.ok) {
         const errorData = await resp.json();

@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import UserRouter from './routes/user.routes.js';
 import AuthRouter from './routes/auth.routes.js';
-import SigninRouter from './routes/auth.routes.js'
 import postRouter from './routes/post.router.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -26,9 +25,8 @@ app.listen(3000 , ()=>{
     console.log("app is listen on 3000")
 })
 
-app.use('/', UserRouter);
-app.use('/api/user', SigninRouter);
-app.use('/', AuthRouter);
+app.use('/api/user', UserRouter);
+app.use('/api/auth', AuthRouter);
 app.use('/api/post', postRouter)
 
 

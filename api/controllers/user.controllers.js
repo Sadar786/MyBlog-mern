@@ -8,6 +8,7 @@ export const test = async (req, res) => {
 };
 
 export const updateUser = async (req, res, next) => {
+    console.log("update is called ")
     try {
         if (req.user.id !== req.params.userId) {
             return next(errorHandler(400, "You are not authorized!"));
@@ -59,7 +60,7 @@ export const updateUser = async (req, res, next) => {
 };
 
 export const deleteUser = async (req, res, next) => {
-      if(req.user.id !== req.params.userId){
+      if(!req.user.isAdmin && req.user.id !== req.params.userId){
         return next(errorHandler(403, "you are not allowed to delete acount, because you are not authorized user."))
       }
       try {
@@ -81,6 +82,7 @@ export const signOut = async (req, res, next) =>{
 }
 
 export const getUsers = async (req, res, next) => {
+    console.log('oho me is calling')
     try {
         // Check if the user is an admin
         if (!req.user.isAdmin) {
