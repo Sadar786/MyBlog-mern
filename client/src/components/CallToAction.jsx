@@ -3,7 +3,7 @@ import React from 'react'
 
 export default function CallToAction() {
   return (
-    <div className='flex flex-col sm:flex-row p-3 border border-teal-500 justify-center items-center rounded-tl-3xl rounded-br-3xl text-center m-4'>
+    <div className='flex flex-col sm:flex-row p-3 border border-teal-500 justify-center items-center rounded-tl-3xl rounded-br-3xl text-center '>
       <div className='flex-1 flex flex-col justify-center'>
         <h2 className='text-2xl'>want to learn more about javaScript</h2>
         <p className='text-gray-500'>Check out this resources with 500 projects</p>
