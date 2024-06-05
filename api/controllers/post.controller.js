@@ -35,7 +35,8 @@ export const getPosts = async (req, res, next) => {
         const sortDirection = req.query.order === 'asc' ? 1 : -1;
 
         const query = {};
-
+        
+        
         if (req.query.userId) {
             query.userId = req.query.userId;
         }

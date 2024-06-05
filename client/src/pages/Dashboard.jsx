@@ -8,7 +8,7 @@ import DashUser from '../components/DashUser'
 export default function Dashboard() {
   const location = useLocation();
   const [tab, setTab] = useState('');
-  useEffect(()=> {
+  useEffect( () => {
     const urlParams = new URLSearchParams(location.search);
     const tabFromUrl = urlParams.get('tab');
     if(tabFromUrl){

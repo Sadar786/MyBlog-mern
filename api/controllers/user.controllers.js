@@ -82,7 +82,6 @@ export const signOut = async (req, res, next) =>{
 }
 
 export const getUsers = async (req, res, next) => {
-    console.log('oho me is calling')
     try {
         // Check if the user is an admin
         if (!req.user.isAdmin) {
