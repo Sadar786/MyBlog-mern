@@ -6,8 +6,7 @@ import Comment from '../models/comment.model.js'
 
 
 export const createComment = async (req, res, next) => {
-    console.log("hye create comment is called ")
-  try {
+   try {
     
     const {content, postId, userId} = req.body;
     
@@ -28,3 +27,17 @@ export const createComment = async (req, res, next) => {
     next(error)
   }
 };
+
+export const getComment = async (req, res, next) => {
+  try {
+    const comments = await Comment.find({postId: req.params.postId}).sort({createAt: -1})
+    if(comments.length>0){
+      res.status(200).json(comments);
+    }
+    else{
+      res.status(500).json({message: "something want wrong"})
+    }
+  } catch (error) {
+    next(error)
+  }
+}
