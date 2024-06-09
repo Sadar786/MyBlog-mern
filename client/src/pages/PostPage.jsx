@@ -71,7 +71,7 @@ export default function PostPage() {
                   {post && new Date(post.createdAt).toLocaleDateString()}
                 </span>
                 <span className="italic">
-                  {post && post.content.length / 100} mins read
+                  {post && Math.ceil(post.content.length / 1000)} mins read
                 </span>
               </div>
               {post && post.content ? (
