@@ -36,10 +36,6 @@ export const getPosts = async (req, res, next) => {
 
         const query = {};
         
-        
-        if (req.query.userId) {
-            query.userId = req.query.userId;
-        }
         if (req.query.category) {
             query.category = req.query.category;
         }

@@ -3,14 +3,18 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Comments from "./Comments";
+import { useNavigate } from "react-router-dom";
 
 export default function CommentSection({ postId }) {
   const { currentUser } = useSelector((state) => state.user);
   const [comment, setComment] = useState("");
-  const [commentError, serCommentError] = useState(null);
+  const navigate = useNavigate();
+  
+  // const [commentError, serCommentError] = useState(null); // Old line
+  const [commentError, setCommentError] = useState(null); // Updated line
+  
   const [comments, setComments] = useState([]);
 
-  console.log(comments);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,9 +37,11 @@ export default function CommentSection({ postId }) {
       });
 
       const data = await res.json();
+      
       if (res.ok) {
-        serCommentError(null);
-        setComment("");
+        setCommentError(null); 
+        setComment(""); 
+        setComments([data, ...comments]);  
       }
     } catch (error) {
       console.log(error.message);
@@ -44,17 +50,13 @@ export default function CommentSection({ postId }) {
   };
 
   useEffect(() => {
-    // const controller = new AbortController();
-    // const signal = controller.signal;
-
     const getComments = async () => {
       try {
-        const res = await fetch(
-          `/api/comment/getComment/${postId}` /*{ signal }*/
-        );
+        const res = await fetch(`/api/comment/getComment/${postId}`);
         const data = await res.json();
+        
         if (res.ok) {
-          setComments([data, ...comments]);
+          setComments(data); // Updated line: Set comments with fetched data
         } else {
           console.log(data.message);
         }
@@ -68,13 +70,40 @@ export default function CommentSection({ postId }) {
     };
 
     getComments();
-
-    // return () => {
-    //     controller.abort();
-    // };
   }, [postId]);
 
-  console.log(comments)
+  const handleLike = async (commentId) => {
+    try {
+      if (!currentUser) {
+        navigate("/signin");
+        return;
+      }
+      const res = await fetch(`/api/comment/likeComment/${commentId}`, {
+        method: "PUT",
+      });
+  
+      if (res.ok) {
+        const data = await res.json();
+        // Assuming `comments` is the state holding all comments
+        setComments(comments.map((comment) => {
+          if (comment._id === commentId) {
+            // Update the liked comment with new like data
+            return {
+              ...comment,
+              likes: data.likes,
+              numberOfLikes: data.likes.length
+            };
+          }
+          return comment;
+        }));
+      } else {
+        console.error("Failed to like the comment");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
   return (
     <div className="max-w-2xl p-3 w-full mx-auto ">
       {currentUser ? (
@@ -135,18 +164,15 @@ export default function CommentSection({ postId }) {
         <p className="text-sm py-7">No Comments yet!</p>
       ) : (
         <>
-        <div className="text-sm my-5 flex items-center gap-1">
-          <p>Comments</p>
-          <div className="border border-gray-400 py-1 px-2 rounded-sm">
-            <p>{comments.length}</p>
+          <div className="text-sm my-5 flex items-center gap-1">
+            <p>Comments</p>
+            <div className="border border-gray-400 py-1 px-2 rounded-sm">
+              <p>{comments.length}</p>
+            </div>
           </div>
-        </div>
-        {comments.map(comment=> (
-          <Comments
-          key={comments._id}
-          comment={comment}/>
-        )
-        )}
+          {comments.map((comment) => (
+            <Comments key={comment._id} comment={comment} onLike={handleLike} /> // Updated line: Use comment._id as key
+          ))}
         </>
       )}
     </div>

@@ -22,7 +22,9 @@ export default function DashPosts() {
           throw new Error("Failed to fetch posts");
         }
         const data = await response.json();
-        setPosts(data.posts || []);
+        if(response.ok){
+        setPosts(data.posts);
+        }
         if (data.length < 9) {
           setShowMore(false);
         }
