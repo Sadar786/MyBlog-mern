@@ -3,12 +3,14 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import CallToAction from "../components/CallToAction";
 import CommentSection from "../components/CommentSection";
+import PostCard from "../components/PostCard";
 
 export default function PostPage() {
   const { postSlug } = useParams();
   const [loading, setLoading] = useState(true);
   const [errOccur, setErrOccur] = useState(false);
   const [post, setPost] = useState(null);
+  const [recentPosts, setRecentPosts] = useState(null);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -37,6 +39,22 @@ export default function PostPage() {
     fetchPost();
   }, [postSlug]);
 
+  useEffect(() => {
+    const fetchRecentPosts = async () => {
+      try {
+        const res = await fetch(`/api/post/getPosts?limit=3`);
+        if (res.ok) {
+          const data = await res.json();
+          setRecentPosts(data.posts);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchRecentPosts();
+  }, []);
+
   return (
     <div>
       {loading ? (
@@ -50,7 +68,6 @@ export default function PostPage() {
           {post && (
             <main className="flex flex-col max-w-6xl mx-auto p-3 min-h-screen">
               <h1 className="text-3xl mt-10 text-center p-3 font-sarif mix-w-2xl mx-auto lg;text-4xl">
-                {" "}
                 {post.title}
               </h1>
               <Link
@@ -92,6 +109,18 @@ export default function PostPage() {
 
       <div>
         <div>{post && <CommentSection postId={post._id} />}</div>
+      </div>
+      <div className="flex flex-col justify-center items-center mb-5 ">
+        <h1 className="text-xl mt-5">Recent Posts</h1>
+        <div className="flex flex-wrap mt-5 gap-5 justify-center">
+        {recentPosts ? (
+          recentPosts.map((post) => (
+            <PostCard key={post._id} post={post} />
+          ))
+        ) : (
+          <div>No recent posts available</div>
+        )}
+        </div>
       </div>
     </div>
   );

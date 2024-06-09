@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import Comments from "./Comments";
 import { useNavigate } from "react-router-dom";
 import {HiOutlineExclamationCircle } from 'react-icons/hi'
- 
+
 export default function CommentSection({ postId }) {
   const { currentUser } = useSelector((state) => state.user);
   const [comment, setComment] = useState("");
